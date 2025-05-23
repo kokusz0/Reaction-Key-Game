@@ -19,15 +19,16 @@
     #playBtn {
       font-size: 2rem;
       padding: 1rem 2rem;
-      background: #0f0;
-      border: none;
+      background: black;
+      border: 3px solid #0f0;
+      box-shadow: 0 0 10px #0f0;
+      color: #0f0;
       border-radius: 10px;
       cursor: pointer;
     }
     .circle {
       position: absolute;
-      background: #f00;
-      color: #fff;
+      background: black;
       font-size: 2rem;
       display: flex;
       justify-content: center;
@@ -63,20 +64,36 @@
 
   <script>
     const playBtn = document.getElementById('playBtn');
-    let currentCircle = null;
-    let expectedKey = '';
+    let activeCircles = [];
+    let expectedKeys = [];
+    let spawnCount = 0;
+    const totalCircles = 15;
 
     function getRandomKey() {
       const keys = 'abcdefghijklmnopqrstuvwxyz0123456789'.split('');
       return keys[Math.floor(Math.random() * keys.length)];
     }
 
+    function getRandomColor() {
+      const colors = ['#0f0', '#0ff', '#f0f', '#ff0', '#f00', '#00f', '#ffa500'];
+      return colors[Math.floor(Math.random() * colors.length)];
+    }
+
     function spawnCircle() {
+      if (spawnCount >= totalCircles) return;
       const circle = document.createElement('div');
       circle.className = 'circle';
 
-      expectedKey = getRandomKey();
-      circle.textContent = expectedKey.toUpperCase();
+      const key = getRandomKey();
+      expectedKeys.push(key);
+      circle.dataset.key = key;
+
+      const neonColor = getRandomColor();
+      circle.textContent = key.toUpperCase();
+      circle.style.color = neonColor;
+      circle.style.textShadow = `0 0 10px ${neonColor}`;
+      circle.style.border = `2px solid ${neonColor}`;
+      circle.style.boxShadow = `0 0 10px ${neonColor}`;
 
       const x = Math.random() * (window.innerWidth - 80);
       const y = Math.random() * (window.innerHeight - 80);
@@ -84,24 +101,37 @@
       circle.style.top = `${y}px`;
 
       document.body.appendChild(circle);
-      currentCircle = circle;
+      activeCircles.push(circle);
+      spawnCount++;
+    }
+
+    function startGame() {
+      const spawnInterval = setInterval(() => {
+        spawnCircle();
+        if (spawnCount >= totalCircles) {
+          clearInterval(spawnInterval);
+        }
+      }, 1000);
     }
 
     playBtn.addEventListener('click', () => {
       playBtn.style.display = 'none';
       setTimeout(() => {
-        spawnCircle();
+        startGame();
       }, 3000);
     });
 
     window.addEventListener('keydown', (e) => {
-      if (!currentCircle) return;
-      if (e.key.toLowerCase() === expectedKey) {
-        currentCircle.classList.add('hit');
-        setTimeout(() => {
-          currentCircle.remove();
-          currentCircle = null;
-        }, 300);
+      for (let i = 0; i < activeCircles.length; i++) {
+        const circle = activeCircles[i];
+        if (e.key.toLowerCase() === circle.dataset.key) {
+          circle.classList.add('hit');
+          setTimeout(() => {
+            circle.remove();
+          }, 300);
+          activeCircles.splice(i, 1);
+          break;
+        }
       }
     });
   </script>
