@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Key Reaction Game</title>
+  <title>Click Reaction Game</title>
   <style>
     body {
       margin: 0;
@@ -29,14 +29,11 @@
     .circle {
       position: absolute;
       background: black;
-      font-size: 2rem;
-      display: flex;
-      justify-content: center;
-      align-items: center;
       width: 80px;
       height: 80px;
       border-radius: 50%;
       animation: popin 0.2s ease;
+      cursor: pointer;
     }
     @keyframes popin {
       from {
@@ -64,15 +61,8 @@
 
   <script>
     const playBtn = document.getElementById('playBtn');
-    let activeCircles = [];
-    let expectedKeys = [];
     let spawnCount = 0;
-    const totalCircles = 15;
-
-    function getRandomKey() {
-      const keys = 'abcdefghijklmnopqrstuvwxyz0123456789'.split('');
-      return keys[Math.floor(Math.random() * keys.length)];
-    }
+    const totalCircles = 30;
 
     function getRandomColor() {
       const colors = ['#0f0', '#0ff', '#f0f', '#ff0', '#f00', '#00f', '#ffa500'];
@@ -84,14 +74,7 @@
       const circle = document.createElement('div');
       circle.className = 'circle';
 
-      const key = getRandomKey();
-      expectedKeys.push(key);
-      circle.dataset.key = key;
-
       const neonColor = getRandomColor();
-      circle.textContent = key.toUpperCase();
-      circle.style.color = neonColor;
-      circle.style.textShadow = `0 0 10px ${neonColor}`;
       circle.style.border = `2px solid ${neonColor}`;
       circle.style.boxShadow = `0 0 10px ${neonColor}`;
 
@@ -100,8 +83,14 @@
       circle.style.left = `${x}px`;
       circle.style.top = `${y}px`;
 
+      circle.addEventListener('click', () => {
+        circle.classList.add('hit');
+        setTimeout(() => {
+          circle.remove();
+        }, 300);
+      });
+
       document.body.appendChild(circle);
-      activeCircles.push(circle);
       spawnCount++;
     }
 
@@ -111,7 +100,7 @@
         if (spawnCount >= totalCircles) {
           clearInterval(spawnInterval);
         }
-      }, 1000);
+      }, 500);
     }
 
     playBtn.addEventListener('click', () => {
@@ -119,20 +108,6 @@
       setTimeout(() => {
         startGame();
       }, 3000);
-    });
-
-    window.addEventListener('keydown', (e) => {
-      for (let i = 0; i < activeCircles.length; i++) {
-        const circle = activeCircles[i];
-        if (e.key.toLowerCase() === circle.dataset.key) {
-          circle.classList.add('hit');
-          setTimeout(() => {
-            circle.remove();
-          }, 300);
-          activeCircles.splice(i, 1);
-          break;
-        }
-      }
     });
   </script>
 </body>
