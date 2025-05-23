@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Key Reaction Game</title>
+  <style>
+    body {
+      margin: 0;
+      background: black;
+      color: white;
+      font-family: sans-serif;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    #playBtn {
+      font-size: 2rem;
+      padding: 1rem 2rem;
+      background: #0f0;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    .circle {
+      position: absolute;
+      background: #f00;
+      color: #fff;
+      font-size: 2rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      animation: popin 0.2s ease;
+    }
+    @keyframes popin {
+      from {
+        transform: scale(0);
+        opacity: 0;
+      }
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+    .hit {
+      animation: hit 0.3s forwards;
+    }
+    @keyframes hit {
+      to {
+        transform: scale(1.5);
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <button id="playBtn">Play</button>
+
+  <script>
+    const playBtn = document.getElementById('playBtn');
+    let currentCircle = null;
+    let expectedKey = '';
+
+    function getRandomKey() {
+      const keys = 'abcdefghijklmnopqrstuvwxyz0123456789'.split('');
+      return keys[Math.floor(Math.random() * keys.length)];
+    }
+
+    function spawnCircle() {
+      const circle = document.createElement('div');
+      circle.className = 'circle';
+
+      expectedKey = getRandomKey();
+      circle.textContent = expectedKey.toUpperCase();
+
+      const x = Math.random() * (window.innerWidth - 80);
+      const y = Math.random() * (window.innerHeight - 80);
+      circle.style.left = `${x}px`;
+      circle.style.top = `${y}px`;
+
+      document.body.appendChild(circle);
+      currentCircle = circle;
+    }
+
+    playBtn.addEventListener('click', () => {
+      playBtn.style.display = 'none';
+      setTimeout(() => {
+        spawnCircle();
+      }, 3000);
+    });
+
+    window.addEventListener('keydown', (e) => {
+      if (!currentCircle) return;
+      if (e.key.toLowerCase() === expectedKey) {
+        currentCircle.classList.add('hit');
+        setTimeout(() => {
+          currentCircle.remove();
+          currentCircle = null;
+        }, 300);
+      }
+    });
+  </script>
+</body>
+</html>
